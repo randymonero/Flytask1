@@ -1,0 +1,28 @@
+{
+  "development": {
+    "username": "root",
+    "password": "randy",
+    "database": "database_development_to_do_app",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port":3307
+  },
+  "test": {
+    "username": "root",
+    "password": "randy",
+    "database": "database_test_to_do_app",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port":3307
+  },
+  "production": {
+    "username": "randy",
+    "password": null,
+    "database": "database_production_to_do_app",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port":3307
+  }
+}
+
+
