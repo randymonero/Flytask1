@@ -29,5 +29,5 @@ INSERT INTO `database_development_to_do_app`.`tasks`
 VALUES
 (1,'game','2002-10-05','2002-10-15','2'),(1,'play','2002-10-05','2002-10-15','2');
 
-
+delete from users where name like '%sea%';
 

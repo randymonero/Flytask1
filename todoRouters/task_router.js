@@ -1,45 +1,45 @@
 
 const express = require('express');
-var router = express.Router()
+const router = express.Router()
 
-taskController = require('../controller/task_controller')
+const taskController = require('../controller/task_controller')
 
 
+router.post ('/', async (req,res) =>{
+    await taskController.addTask(req,res)
+    
+}) 
 
-// localhost:4000/api/tasks
 router.get ('/',async (req,res) =>{
     const tasks = await taskController.getAllTasks(req,res)
     let response = {
-        message: "tasks list",
+        message: "Tasks list",
         status:200,
         result:tasks
     }
-    res.status(200).send(JSON.stringify(response))
+    res.status(200).json(response)
 })
 
-router.get ('/:id',async (req,res) =>{
+router.get('/:id',async (req,res) =>{
     const task = await taskController.getTaskById(req.params.id) 
     let response = {
-        message:`task has been opened`,
+        message:`Task has been opened`,
         status:200,
         result:task
     }
-    res.status(200).send(JSON.stringify(response))
+    res.status(200).json(response)
 })
 
 router.delete ('/:id',async (req,res) =>{
     await taskController.deleteTask(req.params.id)
     let response = {
-        message: 'task has been deleted',
+        message: 'Task has been deleted',
         status:200,
         result:null
     }
-    res.status(200).send(JSON.stringify(response))
+    res.status(200).json(response)
 })
 
-router.post ('/', async (req,res) =>{
-    await taskController.addTask(req,res)
-})
 
 router.put ('/:id', async (req,res) =>{
     await taskController.updateTask(req,res)

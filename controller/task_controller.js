@@ -1,11 +1,11 @@
-var models = require('../models')
+const models = require('../models')
 const jwtUtils = require('../utils/jwt.utils')
 
 module.exports =
 {
     getAllTasks: async (req,res) => {
-        var headerAuth = jwtUtils.getUserToken(req)
-        var userId = jwtUtils.getUserId(headerAuth)
+        let headerAuth = jwtUtils.getUserToken(req)
+        let userId = jwtUtils.getUserId(headerAuth)
         return await models.Task.findAll({
             attributes: [
                 "id",
@@ -40,10 +40,10 @@ module.exports =
     },
 
     addTask: async (req, res) => {
-        var headerAuth = jwtUtils.getUserToken(req)
-        var userId = jwtUtils.getUserId(headerAuth)
+        let headerAuth = jwtUtils.getUserToken(req)
+        let userId = jwtUtils.getUserId(headerAuth)
 
-        let { task_name, starting_date, ending_date, status } = req.body
+        // let { task_name, starting_date, ending_date, status } = req.body
 
         // if (UserId == null || UserId == '' || UserId == undefined) {
         //     return res.status(400).send("UserId can not be null")
@@ -64,12 +64,11 @@ module.exports =
         })
 
         let response = {
-            message: "task has been added",
+            message: "Task has been added",
             status: 201,
             result: newTask
         }
-
-        return res.status(201).send(JSON.stringify(response))
+        return res.status(201).json(response)
 
     },
 
@@ -114,7 +113,7 @@ module.exports =
         }
 
         if (data === true) {
-            let modifiedTask = await models.Task.update(
+            await models.Task.update(
                 {...req.body}, 
                 { where: { id: task.id } 
             })
