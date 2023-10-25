@@ -1,34 +1,24 @@
-const models = require('../models')
-const jwtUtils = require('../utils/jwt.utils')
+const models = require('../models');
+const jwtUtils = require('../utils/jwt.utils');
+
+const attributes = ["id","UserId","task_name","starting_date","ending_date","status"];
 
 module.exports =
 {
-    getAllTasks: async (req,res) => {
-        let headerAuth = jwtUtils.getUserToken(req)
-        let userId = jwtUtils.getUserId(headerAuth)
-        return await models.Task.findAll({
-            attributes: [
-                "id",
-                "UserId",
-                "task_name",
-                "starting_date",
-                "ending_date",
-                "status"
-            ],
-            where: {UserId: userId}
-        })
+    getAllTasks: async (req, res) => {
+        let headerAuth = jwtUtils.getUserToken(req);
+        let userId = jwtUtils.getUserId(headerAuth);
+        let isAdmin = jwtUtils.getUserAdmin(headerAuth);
+        
+        return isAdmin ? await models.Task.findAll({ attributes: attributes}) : await models.Task.findAll({
+            attributes: attributes,
+            where: { UserId: userId }
+        });
     },
 
     getTaskById: async (taskId) => {
         return await models.Task.findOne({
-            attributes: [
-                "id",
-                "UserId",
-                "task_name",
-                "starting_date",
-                "ending_date",
-                "status"
-            ],
+            attributes: attributes,
             where: { id: taskId }
         })
     },
@@ -40,41 +30,35 @@ module.exports =
     },
 
     addTask: async (req, res) => {
-        let headerAuth = jwtUtils.getUserToken(req)
-        let userId = jwtUtils.getUserId(headerAuth)
-
-        // let { task_name, starting_date, ending_date, status } = req.body
-
-        // if (UserId == null || UserId == '' || UserId == undefined) {
-        //     return res.status(400).send("UserId can not be null")
-        // }
+        let headerAuth = jwtUtils.getUserToken(req);
+        let userId = jwtUtils.getUserId(headerAuth);
 
         let user = await models.User.findOne({
-            attributes: [
-                "id"
-            ],
+            attributes: ["id", "isAdmin"],
             where: { id: userId }
-        })
+        });
+
         if (user == null) {
-            return res.status(404).send("User not found")
+            return res.status(404).send("User not found");
         }
 
         let newTask = await models.Task.create({
-            ...req.body,UserId:userId
-        })
+            ...req.body, UserId: userId
+        });
 
         let response = {
             message: "Task has been added",
             status: 201,
             result: newTask
-        }
-        return res.status(201).json(response)
+        };
 
+        return res.status(201).json(response);
     },
 
     updateTask: async (req, res) => {
-        let { id, UserId, task_name, starting_date, ending_date, status } = req.body
-        
+        let id = req.params.id
+        let { UserId, task_name, starting_date, ending_date, status } = req.body
+
         let data = false
 
         let task = await models.Task.findOne({
@@ -85,16 +69,19 @@ module.exports =
             return res.status(404).send("task does not exist")
         }
 
-        let user = await models.User.findOne({
-            attributes: [
-                "id"
-            ],
-            where: { id: UserId }
-        })
-        if (user == null) {
-            return res.status(404).send("User not found")
-        }
+        let user;
 
+        if (UserId) {
+            user = await models.User.findOne({
+                attributes: [
+                    "id"
+                ],
+                where: { id: UserId }
+            });
+            if (user == null) {
+                return res.status(404).send("User not found")
+            }
+        }
 
         if (task_name != task.task_name) {
             data = true
@@ -112,21 +99,23 @@ module.exports =
             data = true
         }
 
+        if (UserId != task.UserId) {
+            data = true
+        }
+
         if (data === true) {
             await models.Task.update(
-                {...req.body}, 
-                { where: { id: task.id } 
-            })
+                { ...req.body },
+                { where: { id: task.id }})
 
             let response = {
                 message: "task has been modified",
                 status: 201,
                 result: req.body
             }
-    
-            return res.status(201).send(JSON.stringify(response))
-        }
 
+            return res.status(201).json(response)
+        }
 
         let response = {
             message: "no data has been modified",
@@ -134,14 +123,9 @@ module.exports =
             result: null
         }
 
-        return res.status(200).send(JSON.stringify(response))
+        return res.status(200).json(response)
     }
-
 }
-
-
-
-
 
 // module.exports.getTaskById = async (id) => {
 //     const [[record]] = await db.query("SELECT * FROM tasks_table where task_id = ? ",[id])
